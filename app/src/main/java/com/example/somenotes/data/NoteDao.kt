@@ -1,0 +1,26 @@
+package com.example.somenotes.data
+
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface NoteDao {
+    @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
+    fun getAllNotes(): Flow<List<Note>>
+    
+    @Query("SELECT * FROM notes WHERE reminderTime IS NOT NULL ORDER BY reminderTime ASC")
+    fun getNotesWithReminders(): Flow<List<Note>>
+    
+    @Query("SELECT * FROM notes WHERE id = :id")
+    suspend fun getNoteById(id: Long): Note?
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNote(note: Note): Long
+    
+    @Update
+    suspend fun updateNote(note: Note)
+    
+    @Delete
+    suspend fun deleteNote(note: Note)
+}
