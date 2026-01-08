@@ -2,12 +2,15 @@ package com.example.somenotes
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.somenotes.data.Note
@@ -27,8 +30,23 @@ class NoteEditActivity : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Enable edge-to-edge and draw behind system bars
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            )
+        }
+        
         binding = ActivityNoteEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Setup status bar spacer
+        setupStatusBarSpacer()
         
         // Initialize ViewModel
         viewModel = ViewModelProvider(this, NoteViewModelFactory(application))[NoteViewModel::class.java]
@@ -42,6 +60,18 @@ class NoteEditActivity : AppCompatActivity() {
         
         if (noteId != null) {
             loadNote()
+        }
+    }
+    
+    private fun setupStatusBarSpacer() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val statusBarHeight = systemBars.top
+            
+            binding.statusBarSpacer.layoutParams.height = statusBarHeight
+            binding.statusBarSpacer.requestLayout()
+            
+            insets
         }
     }
     

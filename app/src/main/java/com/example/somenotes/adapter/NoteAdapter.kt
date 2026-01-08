@@ -25,6 +25,14 @@ class NoteAdapter(private val onNoteClick: (Note) -> Unit) :
         holder.bind(getItem(position))
     }
     
+    fun getNoteAt(position: Int): Note? {
+        return if (position >= 0 && position < itemCount) {
+            getItem(position)
+        } else {
+            null
+        }
+    }
+    
     class NoteViewHolder(
         itemView: View,
         private val onNoteClick: (Note) -> Unit
